@@ -24,3 +24,5 @@ yarn-error.log*
 node_modules\
 backend.iml
 matches.dbe
+.idea\
+sg-schedule.iml
