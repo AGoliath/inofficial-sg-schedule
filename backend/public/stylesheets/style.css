@@ -1,0 +1,17 @@
+
+body {
+  font-family: sans-serif;
+}
+h1 {
+  font-family: Arial Black, sans-serif;
+}
+a {
+  color: #00B7FF;
+}
+
+table {
+  border-spacing: 5px;
+}
+table, th, td {
+  border: 1px solid silver;
+}
