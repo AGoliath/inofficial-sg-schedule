@@ -5,7 +5,6 @@ const Datastore = require('nedb')
 const axios = require("axios");
 const parser = require('node-html-parser');
 const parse = parser.parse;
-
 const url = "http://speedgaming.org/de/?showid";
 const cleanString = (ins) => {
     let rawTxt = ins.trim();
@@ -14,6 +13,27 @@ const cleanString = (ins) => {
     while (rawTxt.indexOf("  ") > -1) rawTxt = rawTxt.split("  ").join(" ");
     return rawTxt.trim();
 };
+
+
+setInterval(() => {
+        axios.get("https://inofficial-sg-schedule.herokuapp.com/update");
+    },
+    1000 * 60 * 10
+);
+
+const formatDate = (d) => {
+    const tag = d.getDate();
+    const monat = d.getMonth() + 1;
+    const jahr = d.getFullYear();
+    const stunde = d.getHours();
+    const minute = d.getMinutes();
+    const sekunde = d.getSeconds();
+    const millisek = d.getMilliseconds();
+    return tag + "." + monat + "." + jahr + " " + stunde + ":" + minute + ":" + sekunde + "." + millisek;
+}
+
+
+let lastSync = new Date();
 
 
 let BOs = {};
@@ -27,6 +47,7 @@ const ANMERKUNG_KEY = "Anmerkung";
 
 const getData = async url => {
     try {
+        lastSync = new Date();
         const response = await axios.get(url);
         const data = response.data;
         const p = parse(data);
@@ -59,7 +80,7 @@ const getData = async url => {
                     match = docs[0];
                 } else {
 
-                    match[BO_KEY] = BOs[0];
+                    match[BO_KEY] = Object.keys(BOs)[0];
                     match[ANMERKUNG_KEY] = "";
                 }
                 db.update({_id: match._id}, match, {upsert: true}, function (err, numReplaced, upsert) {
@@ -126,7 +147,7 @@ async function getRaw() {
 /* GET home page. */
 router.get('/', async function (req, res, next) {
     const bd = await getTable();
-    res.render('index', {title: 'inofficial SGDE Schedule', body: bd});
+    res.render('index', {title: 'inofficial SGDE Schedule', body: bd, syncDate: formatDate(lastSync)});
 });
 router.get('/update', async function (req, res, next) {
     await getData(url);
